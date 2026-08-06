@@ -17,27 +17,42 @@ const habitos = [];
 
 
 // ============================
-// SALVAMENTO DOS DADOS
+// PERSISTÊNCIA DOS DADOS
 // ============================
 
-// Salva todos os hábitos no navegador
+// Salva os hábitos no navegador
 function salvarHabitos() {
     localStorage.setItem("habitos", JSON.stringify(habitos));
 }
 
 
+// Carrega os hábitos salvos no navegador
+function carregarHabitos() {
+    const dadosSalvos = localStorage.getItem("habitos");
+
+    if (!dadosSalvos) {
+        return;
+    }
+
+    const habitosSalvos = JSON.parse(dadosSalvos);
+
+    habitosSalvos.forEach(function (habito) {
+        // Converte novamente o texto salvo em uma data
+        habito.dataInicio = new Date(habito.dataInicio);
+
+        habitos.push(habito);
+        criarCartao(habito);
+    });
+
+    atualizarContadores();
+}
+
+
 // ============================
-// EVENTOS
+// HÁBITOS
 // ============================
 
-botaoAdicionar.addEventListener("click", adicionarHabito);
-
-
-// ============================
-// FUNÇÕES
-// ============================
-
-// Cria um novo hábito a partir dos dados do formulário
+// Cria um novo hábito com os dados do formulário
 function adicionarHabito() {
     const nome = campoNome.value.trim();
     const data = campoData.value;
@@ -64,43 +79,37 @@ function adicionarHabito() {
 
     habitos.push(novoHabito);
 
-    // Salva o novo hábito no navegador
     salvarHabitos();
-
     criarCartao(novoHabito);
+    atualizarContadores();
+    limparFormulario();
 }
 
 
-// ============================
-// CARREGAMENTO DOS DADOS
-// ============================
+// Exclui um hábito da tela, do array e do LocalStorage
+function excluirHabito(idHabito) {
+    const indice = habitos.findIndex(function (habito) {
+        return habito.id === idHabito;
+    });
 
-// Carrega os hábitos salvos no navegador
-function carregarHabitos() {
-
-    const dadosSalvos = localStorage.getItem("habitos");
-
-    // Se não existir nada salvo, encerra a função
-    if (!dadosSalvos) {
+    if (indice === -1) {
         return;
     }
 
-    const habitosSalvos = JSON.parse(dadosSalvos);
+    habitos.splice(indice, 1);
+    salvarHabitos();
 
-    habitosSalvos.forEach(function (habito) {
+    const cartao = document.getElementById(`habito-${idHabito}`);
 
-        // O LocalStorage transforma datas em texto.
-        // Precisamos converter novamente para Date.
-        habito.dataInicio = new Date(habito.dataInicio);
-
-        habitos.push(habito);
-
-        criarCartao(habito);
-    });
-
-    atualizarContadores();
+    if (cartao) {
+        cartao.remove();
+    }
 }
 
+
+// ============================
+// INTERFACE
+// ============================
 
 // Cria visualmente o cartão de um hábito
 function criarCartao(habito) {
@@ -134,7 +143,7 @@ function criarCartao(habito) {
 }
 
 
-// Atualiza o tempo de todos os hábitos cadastrados
+// Atualiza o tempo de todos os hábitos
 function atualizarContadores() {
     const agora = new Date();
 
@@ -147,22 +156,31 @@ function atualizarContadores() {
         const minutos = Math.floor((segundosTotais % 3600) / 60);
         const segundos = segundosTotais % 60;
 
-        document.getElementById(`dias-${habito.id}`).textContent =
+        const elementoDias = document.getElementById(`dias-${habito.id}`);
+        const elementoHoras = document.getElementById(`horas-${habito.id}`);
+        const elementoMinutos = document.getElementById(`minutos-${habito.id}`);
+        const elementoSegundos = document.getElementById(`segundos-${habito.id}`);
+
+        if (!elementoDias) {
+            return;
+        }
+
+        elementoDias.textContent =
             `${dias} ${dias === 1 ? "dia" : "dias"}`;
 
-        document.getElementById(`horas-${habito.id}`).textContent =
+        elementoHoras.textContent =
             `${horas} ${horas === 1 ? "hora" : "horas"}`;
 
-        document.getElementById(`minutos-${habito.id}`).textContent =
+        elementoMinutos.textContent =
             `${minutos} ${minutos === 1 ? "minuto" : "minutos"}`;
 
-        document.getElementById(`segundos-${habito.id}`).textContent =
+        elementoSegundos.textContent =
             `${segundos} ${segundos === 1 ? "segundo" : "segundos"}`;
     });
 }
 
 
-// Limpa os campos após o hábito ser criado
+// Limpa o formulário após criar um hábito
 function limparFormulario() {
     campoNome.value = "";
     campoData.value = "";
@@ -171,41 +189,45 @@ function limparFormulario() {
 
 
 // ============================
-// CLIQUES NOS CARTÕES
+// EVENTOS
 // ============================
 
-listaHabitos.addEventListener("click", function (evento) {
-    if (evento.target.classList.contains("btn-excluir")) {
-        const cartao = evento.target.closest(".habit-card");
-
-        const idHabito = Number(
-            cartao.id.replace("habito-", "")
-        );
-
-        excluirHabito(idHabito);
-    }
-});
-
-// Exclui um hábito da tela, do array e do LocalStorage
-function excluirHabito(idHabito) {
-    const indice = habitos.findIndex(function (habito) {
-        return habito.id === idHabito;
-    });
-
-    if (indice === -1) {
+// Identifica ações realizadas dentro dos cartões
+function tratarCliqueNosCartoes(evento) {
+    if (!evento.target.classList.contains("btn-excluir")) {
         return;
     }
 
-    habitos.splice(indice, 1);
+    const cartao = evento.target.closest(".habit-card");
 
-    salvarHabitos();
+    if (!cartao) {
+        return;
+    }
 
-    const cartao = document.getElementById(`habito-${idHabito}`);
-    cartao.remove();
+    const idHabito = Number(
+        cartao.id.replace("habito-", "")
+    );
+
+    excluirHabito(idHabito);
 }
 
-// Atualiza os contadores a cada segundo
-setInterval(atualizarContadores, 1000);
 
-// Carrega os hábitos salvos quando a página abre
-carregarHabitos();
+// Registra os eventos usados pela aplicação
+function registrarEventos() {
+    botaoAdicionar.addEventListener("click", adicionarHabito);
+    listaHabitos.addEventListener("click", tratarCliqueNosCartoes);
+}
+
+
+// ============================
+// INICIALIZAÇÃO
+// ============================
+
+// Prepara a aplicação quando a página é aberta
+function iniciarAplicacao() {
+    registrarEventos();
+    carregarHabitos();
+    setInterval(atualizarContadores, 1000);
+}
+
+iniciarAplicacao();
