@@ -18,7 +18,10 @@ const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
 const campoOrdenacao = document.getElementById("ordem-habitos");
 const campoBusca = document.getElementById("busca-habitos");
-
+const totalHabitos = document.getElementById("total-habitos");
+const estatisticaTotal = document.getElementById("estatistica-total");
+const estatisticaMaior = document.getElementById("estatistica-maior");
+const estatisticaDestaque = document.getElementById("estatistica-destaque");
 
 // ============================
 // DADOS DO PROJETO
@@ -483,6 +486,8 @@ function renderizarHabitos() {
 
     atualizarContadores();
     atualizarEstadoVazio(habitosFiltrados);
+    atualizarResumo(habitosFiltrados);
+    atualizarEstatisticas();
 }
 
 // Retorna os hábitos que correspondem à busca
@@ -500,6 +505,57 @@ function filtrarHabitos() {
             .toLowerCase()
             .includes(termoBusca);
     });
+}
+
+// Atualiza a quantidade de hábitos exibidos
+function atualizarResumo(habitosFiltrados = habitos) {
+    const total = habitos.length;
+    const visiveis = habitosFiltrados.length;
+
+    if (campoBusca.value.trim() !== "") {
+        totalHabitos.textContent =
+            `${visiveis} de ${total} hábitos encontrados`;
+        return;
+    }
+
+    totalHabitos.textContent =
+        `${total} ${total === 1 ? "hábito" : "hábitos"}`;
+}
+
+// Atualiza os dados gerais exibidos no topo
+function atualizarEstatisticas() {
+    estatisticaTotal.textContent = habitos.length;
+
+    if (habitos.length === 0) {
+        estatisticaMaior.textContent = "0 dias";
+        estatisticaDestaque.textContent = "Nenhum";
+        return;
+    }
+
+    const agora = new Date();
+
+    let habitoDestaque = habitos[0];
+    let maiorQuantidadeDias = 0;
+
+    habitos.forEach(function (habito) {
+        const tempo = calcularTempoDecorrido(
+            habito.dataInicio,
+            agora
+        );
+
+        if (tempo.dias > maiorQuantidadeDias) {
+            maiorQuantidadeDias = tempo.dias;
+            habitoDestaque = habito;
+        }
+    });
+
+    estatisticaMaior.textContent = formatarUnidade(
+        maiorQuantidadeDias,
+        "dia",
+        "dias"
+    );
+
+    estatisticaDestaque.textContent = habitoDestaque.nome;
 }
 
 // ============================
