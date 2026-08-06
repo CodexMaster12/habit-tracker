@@ -5,15 +5,17 @@
 const campoNome = document.getElementById("nome-habito");
 const campoData = document.getElementById("data-inicio");
 const campoHora = document.getElementById("hora-inicio");
+
 const botaoAdicionar = document.getElementById("botao-adicionar");
+const botaoCancelar = document.getElementById("botao-cancelar");
+
 const listaHabitos = document.getElementById("lista-habitos");
+const estadoVazio = document.getElementById("estado-vazio");
 
 const modalConfirmacao = document.getElementById("modal-confirmacao");
 const mensagemModal = document.getElementById("mensagem-modal");
 const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
-const botaoCancelar = document.getElementById("botao-cancelar");
-const estadoVazio = document.getElementById("estado-vazio");
 
 
 // ============================
@@ -24,6 +26,38 @@ const habitos = [];
 
 let idHabitoPendente = null;
 let idHabitoEmEdicao = null;
+
+
+// ============================
+// FUNÇÕES AUXILIARES
+// ============================
+
+// Busca um hábito pelo identificador
+function buscarHabito(idHabito) {
+    return habitos.find(function (habito) {
+        return habito.id === idHabito;
+    });
+}
+
+
+// Retorna os valores atuais do formulário
+function obterDadosFormulario() {
+    return {
+        nome: campoNome.value.trim(),
+        data: campoData.value,
+        hora: campoHora.value || "00:00"
+    };
+}
+
+
+// Define se o formulário está criando ou editando um hábito
+function definirModoEdicao(estaEditando) {
+    botaoAdicionar.textContent = estaEditando
+        ? "Salvar alterações"
+        : "Adicionar hábito";
+
+    botaoCancelar.classList.toggle("oculto", !estaEditando);
+}
 
 
 // ============================
@@ -41,6 +75,7 @@ function carregarHabitos() {
     const dadosSalvos = localStorage.getItem("habitos");
 
     if (!dadosSalvos) {
+        atualizarEstadoVazio();
         return;
     }
 
@@ -62,11 +97,9 @@ function carregarHabitos() {
 // HÁBITOS
 // ============================
 
-// Cria um novo hábito com os dados do formulário
+// Cria ou atualiza um hábito usando os dados do formulário
 function adicionarHabito() {
-    const nome = campoNome.value.trim();
-    const data = campoData.value;
-    const hora = campoHora.value || "00:00";
+    const { nome, data, hora } = obterDadosFormulario();
 
     if (nome === "" || data === "") {
         alert("Preencha o nome e a data de início.");
@@ -88,16 +121,16 @@ function adicionarHabito() {
 
     const novoHabito = {
         id: Date.now(),
-        nome: nome,
-        dataInicio: dataInicio
+        nome,
+        dataInicio
     };
 
     habitos.push(novoHabito);
 
     salvarHabitos();
     criarCartao(novoHabito);
-    atualizarEstadoVazio();
     atualizarContadores();
+    atualizarEstadoVazio();
     limparFormulario();
 }
 
@@ -127,9 +160,7 @@ function excluirHabito(idHabito) {
 
 // Abre o modal de confirmação para reiniciar um hábito
 function reiniciarHabito(idHabito) {
-    const habito = habitos.find(function (habito) {
-        return habito.id === idHabito;
-    });
+    const habito = buscarHabito(idHabito);
 
     if (!habito) {
         return;
@@ -146,9 +177,7 @@ function reiniciarHabito(idHabito) {
 
 // Confirma o reinício do hábito selecionado
 function confirmarReinicio() {
-    const habito = habitos.find(function (habito) {
-        return habito.id === idHabitoPendente;
-    });
+    const habito = buscarHabito(idHabitoPendente);
 
     if (!habito) {
         fecharModal();
@@ -158,25 +187,15 @@ function confirmarReinicio() {
     habito.dataInicio = new Date();
 
     salvarHabitos();
-
-    const cartao = document.getElementById(`habito-${habito.id}`);
-
-    if (cartao) {
-        const textoInicio = cartao.querySelector(".inicio");
-
-        textoInicio.textContent =
-            `Iniciado em: ${habito.dataInicio.toLocaleString("pt-BR")}`;
-    }
-
+    atualizarCartao(habito);
     atualizarContadores();
     fecharModal();
 }
 
+
 // Preenche o formulário com os dados do hábito selecionado
 function prepararEdicao(idHabito) {
-    const habito = habitos.find(function (habito) {
-        return habito.id === idHabito;
-    });
+    const habito = buscarHabito(idHabito);
 
     if (!habito) {
         return;
@@ -191,26 +210,24 @@ function prepararEdicao(idHabito) {
         .toTimeString()
         .slice(0, 5);
 
+    idHabitoEmEdicao = idHabito;
+    definirModoEdicao(true);
+
     campoNome.scrollIntoView({
         behavior: "smooth",
         block: "center"
     });
 
     campoNome.focus();
-    
-    idHabitoEmEdicao = idHabito;
-
-    botaoAdicionar.textContent = "Salvar alterações";
-    botaoCancelar.classList.remove("oculto");
 }
+
 
 // Salva as alterações feitas em um hábito existente
 function salvarEdicao(nome, dataInicio) {
-    const habito = habitos.find(function (habito) {
-        return habito.id === idHabitoEmEdicao;
-    });
+    const habito = buscarHabito(idHabitoEmEdicao);
 
     if (!habito) {
+        cancelarEdicao();
         return;
     }
 
@@ -218,35 +235,20 @@ function salvarEdicao(nome, dataInicio) {
     habito.dataInicio = dataInicio;
 
     salvarHabitos();
-
-    const cartaoAntigo = document.getElementById(
-        `habito-${habito.id}`
-    );
-
-    if (cartaoAntigo) {
-        cartaoAntigo.remove();
-    }
-
-    criarCartao(habito);
+    atualizarCartao(habito);
     atualizarContadores();
-    limparFormulario();
-
-    idHabitoEmEdicao = null;
-    botaoAdicionar.textContent = "Adicionar hábito";
-    botaoCancelar.classList.add("oculto");
     atualizarEstadoVazio();
+
+    cancelarEdicao();
 }
+
 
 // Cancela a edição atual
 function cancelarEdicao() {
-
     idHabitoEmEdicao = null;
 
     limparFormulario();
-
-    botaoAdicionar.textContent = "Adicionar hábito";
-
-    botaoCancelar.classList.add("oculto");
+    definirModoEdicao(false);
 }
 
 
@@ -261,7 +263,15 @@ function criarCartao(habito) {
     cartao.classList.add("habit-card");
     cartao.id = `habito-${habito.id}`;
 
-    cartao.innerHTML = `
+    cartao.innerHTML = gerarConteudoCartao(habito);
+
+    listaHabitos.appendChild(cartao);
+}
+
+
+// Gera o conteúdo HTML de um cartão
+function gerarConteudoCartao(habito) {
+    return `
         <h2>🎯 Sem ${habito.nome}</h2>
 
         <div class="contador">
@@ -276,22 +286,41 @@ function criarCartao(habito) {
         </p>
 
         <div class="acoes">
-
-            <button class="btn-editar">
+            <button
+                type="button"
+                class="btn-editar"
+            >
                 ✏️ Editar
             </button>
 
-            <button class="btn-reiniciar">
+            <button
+                type="button"
+                class="btn-reiniciar"
+            >
                 🔄 Reiniciar
             </button>
 
-            <button class="btn-excluir">
+            <button
+                type="button"
+                class="btn-excluir"
+            >
                 🗑 Excluir
             </button>
         </div>
     `;
+}
 
-    listaHabitos.appendChild(cartao);
+
+// Atualiza visualmente um cartão existente
+function atualizarCartao(habito) {
+    const cartao = document.getElementById(`habito-${habito.id}`);
+
+    if (!cartao) {
+        criarCartao(habito);
+        return;
+    }
+
+    cartao.innerHTML = gerarConteudoCartao(habito);
 }
 
 
@@ -300,39 +329,76 @@ function atualizarContadores() {
     const agora = new Date();
 
     habitos.forEach(function (habito) {
-        const diferenca = agora - habito.dataInicio;
-        const segundosTotais = Math.floor(diferenca / 1000);
+        const elementosContador = obterElementosContador(habito.id);
 
-        const dias = Math.floor(segundosTotais / 86400);
-        const horas = Math.floor((segundosTotais % 86400) / 3600);
-        const minutos = Math.floor((segundosTotais % 3600) / 60);
-        const segundos = segundosTotais % 60;
-
-        const elementoDias = document.getElementById(`dias-${habito.id}`);
-        const elementoHoras = document.getElementById(`horas-${habito.id}`);
-        const elementoMinutos = document.getElementById(`minutos-${habito.id}`);
-        const elementoSegundos = document.getElementById(`segundos-${habito.id}`);
-
-        if (!elementoDias) {
+        if (!elementosContador) {
             return;
         }
 
-        elementoDias.textContent =
-            `${dias} ${dias === 1 ? "dia" : "dias"}`;
+        const tempo = calcularTempoDecorrido(
+            habito.dataInicio,
+            agora
+        );
 
-        elementoHoras.textContent =
-            `${horas} ${horas === 1 ? "hora" : "horas"}`;
+        elementosContador.dias.textContent =
+            formatarUnidade(tempo.dias, "dia", "dias");
 
-        elementoMinutos.textContent =
-            `${minutos} ${minutos === 1 ? "minuto" : "minutos"}`;
+        elementosContador.horas.textContent =
+            formatarUnidade(tempo.horas, "hora", "horas");
 
-        elementoSegundos.textContent =
-            `${segundos} ${segundos === 1 ? "segundo" : "segundos"}`;
+        elementosContador.minutos.textContent =
+            formatarUnidade(tempo.minutos, "minuto", "minutos");
+
+        elementosContador.segundos.textContent =
+            formatarUnidade(tempo.segundos, "segundo", "segundos");
     });
 }
 
 
-// Limpa o formulário após criar um hábito
+// Calcula o tempo decorrido desde uma data
+function calcularTempoDecorrido(dataInicio, dataAtual) {
+    const diferenca = dataAtual - dataInicio;
+    const segundosTotais = Math.max(
+        0,
+        Math.floor(diferenca / 1000)
+    );
+
+    return {
+        dias: Math.floor(segundosTotais / 86400),
+        horas: Math.floor((segundosTotais % 86400) / 3600),
+        minutos: Math.floor((segundosTotais % 3600) / 60),
+        segundos: segundosTotais % 60
+    };
+}
+
+
+// Busca os elementos visuais do contador
+function obterElementosContador(idHabito) {
+    const dias = document.getElementById(`dias-${idHabito}`);
+    const horas = document.getElementById(`horas-${idHabito}`);
+    const minutos = document.getElementById(`minutos-${idHabito}`);
+    const segundos = document.getElementById(`segundos-${idHabito}`);
+
+    if (!dias || !horas || !minutos || !segundos) {
+        return null;
+    }
+
+    return {
+        dias,
+        horas,
+        minutos,
+        segundos
+    };
+}
+
+
+// Formata singular e plural
+function formatarUnidade(valor, singular, plural) {
+    return `${valor} ${valor === 1 ? singular : plural}`;
+}
+
+
+// Limpa o formulário
 function limparFormulario() {
     campoNome.value = "";
     campoData.value = "";
@@ -346,15 +412,13 @@ function fecharModal() {
     idHabitoPendente = null;
 }
 
+
 // Mostra ou esconde a mensagem de lista vazia
 function atualizarEstadoVazio() {
-
-    if (habitos.length === 0) {
-        estadoVazio.style.display = "block";
-    } else {
-        estadoVazio.style.display = "none";
-    }
-
+    estadoVazio.classList.toggle(
+        "oculto",
+        habitos.length !== 0
+    );
 }
 
 
@@ -364,9 +428,10 @@ function atualizarEstadoVazio() {
 
 // Identifica ações realizadas dentro dos cartões
 function tratarCliqueNosCartoes(evento) {
+    const botaoClicado = evento.target.closest("button");
     const cartao = evento.target.closest(".habit-card");
 
-    if (!cartao) {
+    if (!botaoClicado || !cartao) {
         return;
     }
 
@@ -374,15 +439,17 @@ function tratarCliqueNosCartoes(evento) {
         cartao.id.replace("habito-", "")
     );
 
-    if (evento.target.classList.contains("btn-excluir")) {
+    if (botaoClicado.classList.contains("btn-excluir")) {
         excluirHabito(idHabito);
+        return;
     }
 
-    if (evento.target.classList.contains("btn-reiniciar")) {
+    if (botaoClicado.classList.contains("btn-reiniciar")) {
         reiniciarHabito(idHabito);
+        return;
     }
 
-    if (evento.target.classList.contains("btn-editar")) {
+    if (botaoClicado.classList.contains("btn-editar")) {
         prepararEdicao(idHabito);
     }
 }
@@ -391,11 +458,22 @@ function tratarCliqueNosCartoes(evento) {
 // Registra os eventos usados pela aplicação
 function registrarEventos() {
     botaoAdicionar.addEventListener("click", adicionarHabito);
-    listaHabitos.addEventListener("click", tratarCliqueNosCartoes);
-
-    botaoCancelarModal.addEventListener("click", fecharModal);
-    botaoConfirmarModal.addEventListener("click", confirmarReinicio);
     botaoCancelar.addEventListener("click", cancelarEdicao);
+
+    listaHabitos.addEventListener(
+        "click",
+        tratarCliqueNosCartoes
+    );
+
+    botaoCancelarModal.addEventListener(
+        "click",
+        fecharModal
+    );
+
+    botaoConfirmarModal.addEventListener(
+        "click",
+        confirmarReinicio
+    );
 }
 
 
@@ -407,6 +485,8 @@ function registrarEventos() {
 function iniciarAplicacao() {
     registrarEventos();
     carregarHabitos();
+    definirModoEdicao(false);
+
     setInterval(atualizarContadores, 1000);
 }
 

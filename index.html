@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="css/style.css">
+
     <title>Habit Tracker</title>
 </head>
+
 <body>
     <main class="container">
+        <header>
+            <h1>Habit Tracker</h1>
+            <p>Acompanhe sua evolução e mantenha a constância.</p>
+        </header>
+
         <section class="form-habito">
             <h2>Adicionar hábito</h2>
 
@@ -30,18 +38,23 @@
                 id="hora-inicio"
             >
 
-            <button id="botao-adicionar">
-                Adicionar hábito
-            </button>
+            <div class="acoes-formulario">
+                <button
+                    type="button"
+                    id="botao-adicionar"
+                >
+                    Adicionar hábito
+                </button>
 
-            <button id="botao-cancelar" class="oculto">
-                Cancelar edição
-            </button>
+                <button
+                    type="button"
+                    id="botao-cancelar"
+                    class="oculto"
+                >
+                    Cancelar edição
+                </button>
+            </div>
         </section>
-        <header>
-            <h1>Habit Tracker</h1>
-            <p>Acompanhe sua evolução e mantenha a constância.</p>
-        </header>
 
         <section id="lista-habitos"></section>
 
@@ -52,7 +65,10 @@
         </div>
     </main>
 
-    <div id="modal-confirmacao" class="modal oculto">
+    <div
+        id="modal-confirmacao"
+        class="modal oculto"
+    >
         <div class="modal-conteudo">
             <h2>Reiniciar contador?</h2>
 
@@ -61,17 +77,25 @@
             </p>
 
             <div class="modal-acoes">
-                <button id="btn-cancelar-modal" class="btn-cancelar">
+                <button
+                    type="button"
+                    id="btn-cancelar-modal"
+                    class="btn-cancelar"
+                >
                     Cancelar
                 </button>
 
-                <button id="btn-confirmar-modal" class="btn-confirmar">
+                <button
+                    type="button"
+                    id="btn-confirmar-modal"
+                    class="btn-confirmar"
+                >
                     Reiniciar
                 </button>
             </div>
         </div>
     </div>
-    
+
     <script src="js/script.js"></script>
 </body>
 </html>
