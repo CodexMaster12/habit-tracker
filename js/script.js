@@ -12,6 +12,7 @@ const modalConfirmacao = document.getElementById("modal-confirmacao");
 const mensagemModal = document.getElementById("mensagem-modal");
 const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
+const botaoCancelar = document.getElementById("botao-cancelar");
 
 
 // ============================
@@ -195,6 +196,7 @@ function prepararEdicao(idHabito) {
     idHabitoEmEdicao = idHabito;
 
     botaoAdicionar.textContent = "Salvar alterações";
+    botaoCancelar.classList.remove("oculto");
 }
 
 // Salva as alterações feitas em um hábito existente
@@ -226,6 +228,19 @@ function salvarEdicao(nome, dataInicio) {
 
     idHabitoEmEdicao = null;
     botaoAdicionar.textContent = "Adicionar hábito";
+    botaoCancelar.classList.add("oculto");
+}
+
+// Cancela a edição atual
+function cancelarEdicao() {
+
+    idHabitoEmEdicao = null;
+
+    limparFormulario();
+
+    botaoAdicionar.textContent = "Adicionar hábito";
+
+    botaoCancelar.classList.add("oculto");
 }
 
 
@@ -363,6 +378,7 @@ function registrarEventos() {
 
     botaoCancelarModal.addEventListener("click", fecharModal);
     botaoConfirmarModal.addEventListener("click", confirmarReinicio);
+    botaoCancelar.addEventListener("click", cancelarEdicao);
 }
 
 

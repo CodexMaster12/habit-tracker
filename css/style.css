@@ -160,7 +160,7 @@ button:hover {
 }
 
 .oculto {
-    display: none;
+    display: none !important;
 }
 
 .modal-conteudo {
@@ -208,4 +208,13 @@ button:hover {
 
 .btn-editar:hover {
     background-color: #3498db;
+}
+
+#botao-cancelar {
+    background-color: #666;
+    margin-left: 10px;
+}
+
+#botao-cancelar:hover {
+    background-color: #777;
 }
