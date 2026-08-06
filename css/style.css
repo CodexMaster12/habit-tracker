@@ -201,3 +201,11 @@ button:hover {
 .btn-confirmar:hover {
     background-color: #f39c12;
 }
+
+.btn-editar {
+    background-color: #2980b9;
+}
+
+.btn-editar:hover {
+    background-color: #3498db;
+}

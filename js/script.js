@@ -21,6 +21,7 @@ const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
 const habitos = [];
 
 let idHabitoPendente = null;
+let idHabitoEmEdicao = null;
 
 
 // ============================
@@ -74,6 +75,11 @@ function adicionarHabito() {
 
     if (dataInicio > agora) {
         alert("A data de início não pode estar no futuro.");
+        return;
+    }
+
+    if (idHabitoEmEdicao !== null) {
+        salvarEdicao(nome, dataInicio);
         return;
     }
 
@@ -160,6 +166,68 @@ function confirmarReinicio() {
     fecharModal();
 }
 
+// Preenche o formulário com os dados do hábito selecionado
+function prepararEdicao(idHabito) {
+    const habito = habitos.find(function (habito) {
+        return habito.id === idHabito;
+    });
+
+    if (!habito) {
+        return;
+    }
+
+    campoNome.value = habito.nome;
+
+    campoData.value = habito.dataInicio
+        .toLocaleDateString("en-CA");
+
+    campoHora.value = habito.dataInicio
+        .toTimeString()
+        .slice(0, 5);
+
+    campoNome.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    campoNome.focus();
+    
+    idHabitoEmEdicao = idHabito;
+
+    botaoAdicionar.textContent = "Salvar alterações";
+}
+
+// Salva as alterações feitas em um hábito existente
+function salvarEdicao(nome, dataInicio) {
+    const habito = habitos.find(function (habito) {
+        return habito.id === idHabitoEmEdicao;
+    });
+
+    if (!habito) {
+        return;
+    }
+
+    habito.nome = nome;
+    habito.dataInicio = dataInicio;
+
+    salvarHabitos();
+
+    const cartaoAntigo = document.getElementById(
+        `habito-${habito.id}`
+    );
+
+    if (cartaoAntigo) {
+        cartaoAntigo.remove();
+    }
+
+    criarCartao(habito);
+    atualizarContadores();
+    limparFormulario();
+
+    idHabitoEmEdicao = null;
+    botaoAdicionar.textContent = "Adicionar hábito";
+}
+
 
 // ============================
 // INTERFACE
@@ -187,6 +255,11 @@ function criarCartao(habito) {
         </p>
 
         <div class="acoes">
+
+            <button class="btn-editar">
+                ✏️ Editar
+            </button>
+
             <button class="btn-reiniciar">
                 🔄 Reiniciar
             </button>
@@ -275,6 +348,10 @@ function tratarCliqueNosCartoes(evento) {
 
     if (evento.target.classList.contains("btn-reiniciar")) {
         reiniciarHabito(idHabito);
+    }
+
+    if (evento.target.classList.contains("btn-editar")) {
+        prepararEdicao(idHabito);
     }
 }
 
