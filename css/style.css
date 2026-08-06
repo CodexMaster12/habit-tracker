@@ -409,3 +409,36 @@ button:active {
         grid-template-columns: 1fr;
     }
 }
+
+.progresso-marco {
+    margin: 20px 0;
+}
+
+.progresso-texto {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.progresso-texto strong {
+    color: #22c55e;
+}
+
+.barra-progresso {
+    height: 10px;
+    overflow: hidden;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 999px;
+}
+
+.barra-preenchimento {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
