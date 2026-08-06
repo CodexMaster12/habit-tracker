@@ -13,6 +13,7 @@ const mensagemModal = document.getElementById("mensagem-modal");
 const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
 const botaoCancelar = document.getElementById("botao-cancelar");
+const estadoVazio = document.getElementById("estado-vazio");
 
 
 // ============================
@@ -53,6 +54,7 @@ function carregarHabitos() {
     });
 
     atualizarContadores();
+    atualizarEstadoVazio();
 }
 
 
@@ -94,6 +96,7 @@ function adicionarHabito() {
 
     salvarHabitos();
     criarCartao(novoHabito);
+    atualizarEstadoVazio();
     atualizarContadores();
     limparFormulario();
 }
@@ -117,6 +120,8 @@ function excluirHabito(idHabito) {
     if (cartao) {
         cartao.remove();
     }
+
+    atualizarEstadoVazio();
 }
 
 
@@ -229,6 +234,7 @@ function salvarEdicao(nome, dataInicio) {
     idHabitoEmEdicao = null;
     botaoAdicionar.textContent = "Adicionar hábito";
     botaoCancelar.classList.add("oculto");
+    atualizarEstadoVazio();
 }
 
 // Cancela a edição atual
@@ -338,6 +344,17 @@ function limparFormulario() {
 function fecharModal() {
     modalConfirmacao.classList.add("oculto");
     idHabitoPendente = null;
+}
+
+// Mostra ou esconde a mensagem de lista vazia
+function atualizarEstadoVazio() {
+
+    if (habitos.length === 0) {
+        estadoVazio.style.display = "block";
+    } else {
+        estadoVazio.style.display = "none";
+    }
+
 }
 
 
