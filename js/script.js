@@ -17,6 +17,7 @@ const mensagemModal = document.getElementById("mensagem-modal");
 const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
 const campoOrdenacao = document.getElementById("ordem-habitos");
+const campoBusca = document.getElementById("busca-habitos");
 
 
 // ============================
@@ -429,12 +430,30 @@ function fecharModal() {
 }
 
 
-// Mostra ou esconde a mensagem de lista vazia
-function atualizarEstadoVazio() {
-    estadoVazio.classList.toggle(
-        "oculto",
-        habitos.length !== 0
-    );
+// Mostra a mensagem adequada quando nenhum cartão está visível
+function atualizarEstadoVazio(habitosFiltrados = habitos) {
+    const listaEstaVazia = habitos.length === 0;
+    const buscaSemResultado =
+        habitos.length > 0 && habitosFiltrados.length === 0;
+
+    if (!listaEstaVazia && !buscaSemResultado) {
+        estadoVazio.classList.add("oculto");
+        return;
+    }
+
+    const titulo = estadoVazio.querySelector("p");
+    const descricao = estadoVazio.querySelector("small");
+
+    if (buscaSemResultado) {
+        titulo.textContent = "Nenhum hábito encontrado.";
+        descricao.textContent = "Tente pesquisar usando outro nome.";
+    } else {
+        titulo.textContent = "Nenhum hábito cadastrado.";
+        descricao.textContent =
+            "Adicione seu primeiro hábito para começar.";
+    }
+
+    estadoVazio.classList.remove("oculto");
 }
 
 // Ordena os hábitos conforme a opção selecionada
@@ -456,12 +475,31 @@ function ordenarHabitos() {
 function renderizarHabitos() {
     listaHabitos.innerHTML = "";
 
-    habitos.forEach(function (habito) {
+    const habitosFiltrados = filtrarHabitos();
+
+    habitosFiltrados.forEach(function (habito) {
         criarCartao(habito);
     });
 
     atualizarContadores();
-    atualizarEstadoVazio();
+    atualizarEstadoVazio(habitosFiltrados);
+}
+
+// Retorna os hábitos que correspondem à busca
+function filtrarHabitos() {
+    const termoBusca = campoBusca.value
+        .trim()
+        .toLowerCase();
+
+    if (termoBusca === "") {
+        return habitos;
+    }
+
+    return habitos.filter(function (habito) {
+        return habito.nome
+            .toLowerCase()
+            .includes(termoBusca);
+    });
 }
 
 // ============================
@@ -522,6 +560,8 @@ function registrarEventos() {
         ordenarHabitos();
         renderizarHabitos();
     });
+
+    campoBusca.addEventListener("input", renderizarHabitos);
 }
 
 

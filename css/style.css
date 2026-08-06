@@ -350,3 +350,23 @@ button:active {
     font-size: 14px;
     cursor: pointer;
 }
+
+.filtros {
+    margin-bottom: 16px;
+}
+
+.filtros input {
+    width: 100%;
+    padding: 12px 14px;
+    background-color: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.filtros input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
