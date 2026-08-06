@@ -2,6 +2,9 @@
 // ELEMENTOS DA TELA
 // ============================
 
+import { definirModoEdicao } from "./habitos.js";
+// definirModoEdicao(false);
+
 const campoNome = document.getElementById("nome-habito");
 const campoData = document.getElementById("data-inicio");
 const campoHora = document.getElementById("hora-inicio");
@@ -45,33 +48,6 @@ let idHabitoEmEdicao = null;
 // ============================
 // FUNÇÕES AUXILIARES
 // ============================
-
-// Busca um hábito pelo identificador
-function buscarHabito(idHabito) {
-    return habitos.find(function (habito) {
-        return habito.id === idHabito;
-    });
-}
-
-
-// Retorna os valores atuais do formulário
-function obterDadosFormulario() {
-    return {
-        nome: campoNome.value.trim(),
-        data: campoData.value,
-        hora: campoHora.value || "00:00"
-    };
-}
-
-
-// Define se o formulário está criando ou editando
-function definirModoEdicao(estaEditando) {
-    botaoAdicionar.textContent = estaEditando
-        ? "Salvar alterações"
-        : "Adicionar hábito";
-
-    botaoCancelar.classList.toggle("oculto", !estaEditando);
-}
 
 
 // Formata uma data para o campo input do tipo date
