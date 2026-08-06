@@ -108,3 +108,25 @@ button:hover {
     flex-direction: column;
     gap: 20px;
 }
+
+/* ============================
+   BOTÕES DE AÇÃO
+============================ */
+
+.acoes{
+    margin-top:20px;
+}
+
+.btn-excluir{
+    background:#c0392b;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn-excluir:hover{
+    background:#e74c3c;
+}

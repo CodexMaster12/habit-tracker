@@ -122,6 +122,12 @@ function criarCartao(habito) {
         <p class="inicio">
             Iniciado em: ${habito.dataInicio.toLocaleString("pt-BR")}
         </p>
+
+        <div class="acoes">
+            <button class="btn-excluir">
+                🗑 Excluir
+            </button>
+        </div>
     `;
 
     listaHabitos.appendChild(cartao);
@@ -163,6 +169,40 @@ function limparFormulario() {
     campoHora.value = "";
 }
 
+
+// ============================
+// CLIQUES NOS CARTÕES
+// ============================
+
+listaHabitos.addEventListener("click", function (evento) {
+    if (evento.target.classList.contains("btn-excluir")) {
+        const cartao = evento.target.closest(".habit-card");
+
+        const idHabito = Number(
+            cartao.id.replace("habito-", "")
+        );
+
+        excluirHabito(idHabito);
+    }
+});
+
+// Exclui um hábito da tela, do array e do LocalStorage
+function excluirHabito(idHabito) {
+    const indice = habitos.findIndex(function (habito) {
+        return habito.id === idHabito;
+    });
+
+    if (indice === -1) {
+        return;
+    }
+
+    habitos.splice(indice, 1);
+
+    salvarHabitos();
+
+    const cartao = document.getElementById(`habito-${idHabito}`);
+    cartao.remove();
+}
 
 // Atualiza os contadores a cada segundo
 setInterval(atualizarContadores, 1000);
