@@ -1,0 +1,110 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #202020;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.container{
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px 0;
+}
+
+header{
+    margin-bottom: 30px;
+}
+
+h1{
+    color: #4caf50;
+    margin-bottom: 8px;
+}
+
+header p{
+    color: #bdbdbd;
+    margin-top: 0;
+}
+
+.habit-card {
+    background-color: #2c2c2c;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.habit-card h2 {
+    margin-top: 0;
+}
+
+.contador {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.contador span {
+    background-color: #202020;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.inicio {
+    color: #bdbdbd;
+}
+
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #3d9141;
+}
+
+.form-habito {
+    background-color: #2c2c2c;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.form-habito h2 {
+    margin-top: 0;
+}
+
+.form-habito label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+.form-habito input {
+    width: 100%;
+    background-color: #202020;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.form-habito button {
+    margin-top: 20px;
+}
+
+#lista-habitos {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
