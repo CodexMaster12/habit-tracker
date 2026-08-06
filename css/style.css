@@ -328,3 +328,25 @@ button:active {
         flex-direction: column;
     }
 }
+.ordenacao {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.ordenacao label {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.ordenacao select {
+    padding: 10px 12px;
+    background-color: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}

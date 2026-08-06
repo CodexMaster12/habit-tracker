@@ -16,6 +16,7 @@ const modalConfirmacao = document.getElementById("modal-confirmacao");
 const mensagemModal = document.getElementById("mensagem-modal");
 const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
 const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
+const campoOrdenacao = document.getElementById("ordem-habitos");
 
 
 // ============================
@@ -83,13 +84,31 @@ function carregarHabitos() {
 
     habitosSalvos.forEach(function (habito) {
         habito.dataInicio = new Date(habito.dataInicio);
-
         habitos.push(habito);
-        criarCartao(habito);
     });
 
-    atualizarContadores();
-    atualizarEstadoVazio();
+    ordenarHabitos();
+    renderizarHabitos();
+}
+
+// Salva a opção de ordenação escolhida
+function salvarOrdenacao() {
+    localStorage.setItem(
+        "ordem-habitos",
+        campoOrdenacao.value
+    );
+}
+
+
+// Carrega a opção de ordenação salva
+function carregarOrdenacao() {
+    const ordemSalva = localStorage.getItem("ordem-habitos");
+
+    if (!ordemSalva) {
+        return;
+    }
+
+    campoOrdenacao.value = ordemSalva;
 }
 
 
@@ -127,10 +146,9 @@ function adicionarHabito() {
 
     habitos.push(novoHabito);
 
+    ordenarHabitos();
     salvarHabitos();
-    criarCartao(novoHabito);
-    atualizarContadores();
-    atualizarEstadoVazio();
+    renderizarHabitos();
     limparFormulario();
 }
 
@@ -235,10 +253,8 @@ function salvarEdicao(nome, dataInicio) {
     habito.dataInicio = dataInicio;
 
     salvarHabitos();
-    atualizarCartao(habito);
-    atualizarContadores();
-    atualizarEstadoVazio();
-
+    ordenarHabitos();
+    renderizarHabitos();s
     cancelarEdicao();
 }
 
@@ -421,6 +437,32 @@ function atualizarEstadoVazio() {
     );
 }
 
+// Ordena os hábitos conforme a opção selecionada
+function ordenarHabitos() {
+    if (campoOrdenacao.value === "mais-recente") {
+        habitos.sort(function (habitoA, habitoB) {
+            return habitoB.dataInicio - habitoA.dataInicio;
+        });
+
+        return;
+    }
+
+    habitos.sort(function (habitoA, habitoB) {
+        return habitoA.dataInicio - habitoB.dataInicio;
+    });
+}
+
+// Redesenha todos os cartões na ordem atual do array
+function renderizarHabitos() {
+    listaHabitos.innerHTML = "";
+
+    habitos.forEach(function (habito) {
+        criarCartao(habito);
+    });
+
+    atualizarContadores();
+    atualizarEstadoVazio();
+}
 
 // ============================
 // EVENTOS
@@ -474,6 +516,12 @@ function registrarEventos() {
         "click",
         confirmarReinicio
     );
+
+    campoOrdenacao.addEventListener("change", function () {
+        salvarOrdenacao();
+        ordenarHabitos();
+        renderizarHabitos();
+    });
 }
 
 
@@ -484,6 +532,7 @@ function registrarEventos() {
 // Prepara a aplicação quando a página é aberta
 function iniciarAplicacao() {
     registrarEventos();
+    carregarOrdenacao();
     carregarHabitos();
     definirModoEdicao(false);
 
