@@ -8,12 +8,19 @@ const campoHora = document.getElementById("hora-inicio");
 const botaoAdicionar = document.getElementById("botao-adicionar");
 const listaHabitos = document.getElementById("lista-habitos");
 
+const modalConfirmacao = document.getElementById("modal-confirmacao");
+const mensagemModal = document.getElementById("mensagem-modal");
+const botaoCancelarModal = document.getElementById("btn-cancelar-modal");
+const botaoConfirmarModal = document.getElementById("btn-confirmar-modal");
+
 
 // ============================
 // DADOS DO PROJETO
 // ============================
 
 const habitos = [];
+
+let idHabitoPendente = null;
 
 
 // ============================
@@ -37,7 +44,6 @@ function carregarHabitos() {
     const habitosSalvos = JSON.parse(dadosSalvos);
 
     habitosSalvos.forEach(function (habito) {
-        // Converte novamente o texto salvo em uma data
         habito.dataInicio = new Date(habito.dataInicio);
 
         habitos.push(habito);
@@ -107,6 +113,54 @@ function excluirHabito(idHabito) {
 }
 
 
+// Abre o modal de confirmação para reiniciar um hábito
+function reiniciarHabito(idHabito) {
+    const habito = habitos.find(function (habito) {
+        return habito.id === idHabito;
+    });
+
+    if (!habito) {
+        return;
+    }
+
+    idHabitoPendente = idHabito;
+
+    mensagemModal.textContent =
+        `Deseja reiniciar a contagem de "${habito.nome}" a partir de agora?`;
+
+    modalConfirmacao.classList.remove("oculto");
+}
+
+
+// Confirma o reinício do hábito selecionado
+function confirmarReinicio() {
+    const habito = habitos.find(function (habito) {
+        return habito.id === idHabitoPendente;
+    });
+
+    if (!habito) {
+        fecharModal();
+        return;
+    }
+
+    habito.dataInicio = new Date();
+
+    salvarHabitos();
+
+    const cartao = document.getElementById(`habito-${habito.id}`);
+
+    if (cartao) {
+        const textoInicio = cartao.querySelector(".inicio");
+
+        textoInicio.textContent =
+            `Iniciado em: ${habito.dataInicio.toLocaleString("pt-BR")}`;
+    }
+
+    atualizarContadores();
+    fecharModal();
+}
+
+
 // ============================
 // INTERFACE
 // ============================
@@ -133,6 +187,10 @@ function criarCartao(habito) {
         </p>
 
         <div class="acoes">
+            <button class="btn-reiniciar">
+                🔄 Reiniciar
+            </button>
+
             <button class="btn-excluir">
                 🗑 Excluir
             </button>
@@ -188,16 +246,19 @@ function limparFormulario() {
 }
 
 
+// Fecha o modal sem realizar alterações
+function fecharModal() {
+    modalConfirmacao.classList.add("oculto");
+    idHabitoPendente = null;
+}
+
+
 // ============================
 // EVENTOS
 // ============================
 
 // Identifica ações realizadas dentro dos cartões
 function tratarCliqueNosCartoes(evento) {
-    if (!evento.target.classList.contains("btn-excluir")) {
-        return;
-    }
-
     const cartao = evento.target.closest(".habit-card");
 
     if (!cartao) {
@@ -208,7 +269,13 @@ function tratarCliqueNosCartoes(evento) {
         cartao.id.replace("habito-", "")
     );
 
-    excluirHabito(idHabito);
+    if (evento.target.classList.contains("btn-excluir")) {
+        excluirHabito(idHabito);
+    }
+
+    if (evento.target.classList.contains("btn-reiniciar")) {
+        reiniciarHabito(idHabito);
+    }
 }
 
 
@@ -216,6 +283,9 @@ function tratarCliqueNosCartoes(evento) {
 function registrarEventos() {
     botaoAdicionar.addEventListener("click", adicionarHabito);
     listaHabitos.addEventListener("click", tratarCliqueNosCartoes);
+
+    botaoCancelarModal.addEventListener("click", fecharModal);
+    botaoConfirmarModal.addEventListener("click", confirmarReinicio);
 }
 
 

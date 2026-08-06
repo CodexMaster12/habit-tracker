@@ -130,3 +130,74 @@ button:hover {
 .btn-excluir:hover{
     background:#e74c3c;
 }
+
+.btn-reiniciar {
+    background-color: #e67e22;
+}
+
+.btn-reiniciar:hover {
+    background-color: #f39c12;
+}
+
+.acoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ============================
+   MODAL DE CONFIRMAÇÃO
+============================ */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.oculto {
+    display: none;
+}
+
+.modal-conteudo {
+    width: 100%;
+    max-width: 420px;
+    background-color: #2c2c2c;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.modal-conteudo h2 {
+    margin-top: 0;
+}
+
+.modal-conteudo p {
+    color: #bdbdbd;
+}
+
+.modal-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-cancelar {
+    background-color: #555;
+}
+
+.btn-cancelar:hover {
+    background-color: #666;
+}
+
+.btn-confirmar {
+    background-color: #e67e22;
+}
+
+.btn-confirmar:hover {
+    background-color: #f39c12;
+}
